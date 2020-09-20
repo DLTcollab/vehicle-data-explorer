@@ -1,0 +1,31 @@
+<div id="root">
+    <div class="app">
+        <section class="content">
+            <div class="container">
+                <div class="form-group">
+                    <form id="form" class="">
+                        <div class="form-group row">
+                            <label for="chid" class="col-sm-2 col-form-label">Channel ID:</label>
+                            <input type="text" id="chid" name="chid" class="form-control">
+                        </div>
+                        <div class="form-group row">
+                            <label for="network" class="col-sm-3 col-form-label">Tangle Accelerator Host:</label>
+                            <input type="text" id="network" name="network" class="form-control">
+                        </div>
+                        <div class="form-group row">
+                            <label for="private-key" class="col-sm-2 col-form-label">Private Key:</label>
+                            <input type="text" id="private-key" name="private-key" class="form-control">
+                        </div>
+                        <button type="button" class="mam_sub_form btn btn-primary" id="submit">Submit
+                            <span class="spinner-border spinner-border-sm" id="spinner"
+                                style="visibility: hidden;"></span>
+                        </button>
+                    </form>
+                </div>
+                <div id="mam_payload"></div>
+            </div>
+        </section>
+        {{ template "footer.html" . }}
+    </div>
+</div>
+{{ template "scripts.html". }}

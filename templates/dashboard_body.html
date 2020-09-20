@@ -1,0 +1,71 @@
+<body>
+    <div class="container-fluid">
+        <section class="content">
+            <div class="text-center">
+                <div class="spinner-border" id="spinner" style="width: 4rem; height: 4rem;" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+            <div id="dashboard_body" class="container" style="visibility: hidden;">
+                <label>Vehicle Identification Number (VIN): <span id="text_vin">AAAAAAAAAAAAAAAAA</span></label>
+                <div class="d-md-flex flex-md-equal w-100 my-md-3 pl-md-3">
+                    <div class="bg-light mr-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+                        <div class="my-3 py-3">
+                            <h2 class="display-5">Data</h2>
+                            <div>Engine load: <span id="text_engine_load">100</span>%</div>
+                            <div>Mass air flow: <span id="text_mass_air_flow">100</span>grams/sec</div>
+                            <div>Fuel tank level input: <span id="text_fuel_tank_level_input">100</span>%</div>
+                            <div>Module voltage: <span id="text_control_module_voltage">100</span>V</div>
+                            <div>Throttle position: <span id="text_throttle_position">100</span>%</div>
+                            <div>Relative accelerator pedal position: <span
+                                    id="text_relative_accelerator_pedal_position">100</span>%</div>
+                            <div>Engine fuel rate: <span id="text_engine_fuel_rate">100</span>L/h</div>
+                            <div>Absolute barometric pressure: <span
+                                    id="text_absolute_barometric_pressure">100</span>kPa</div>
+                            <div>Fuel pressure: <span id="text_fuel_pressure">100</span>kPa</div>
+                        </div>
+                    </div>
+                    <div class="bg-light mr-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+                        <div class="my-3 p-3">
+                            <h2 class="display-5">Customized</h2>
+                            <div>service distance: <span id="text_service_distance">100</span></div>
+                            <div>anti lock barking active: <span id="text_anti_lock_barking_active">100</span></div>
+                            <div>steering wheel angle: <span id="text_steering_wheel_engine">100</span></div>
+                            <div>position of doors: <span id="text_position_of_doors">100</span></div>
+                            <div>right left turn signal light: <span id="text_right_left_turn_signal_light">100</span>
+                            </div>
+                            <div>alternate beam head light: <span id="text_alternate_beam_head_light">100</span></div>
+                            <div>high beam head light: <span id="text_high_beam_head_light">100</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-light mr-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+                        <div class="my-3 py-3">
+                            <h2 class="display-5">Speed</h2>
+                            <canvas id="Engine_speed_chart"></canvas>
+                            <canvas id="Vehicle_speed_chart"></canvas>
+                        </div>
+                        <div id="canvas-holder" style="width:50%">
+
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="display-5">Temperature</h2>
+                    <canvas id="temperature_chart" width="400" height="400"></canvas>
+                </div>
+                <div>
+                    <h2 class="display-5">Line Chart</h2>
+                    <div class="dropdown">
+                        <select id="dropdown-menu" onchange="update_line_chart()">
+                        </select>
+                    </div>
+                    <canvas class="my-4 w-100 chartjs-render-monitor" id="lineChart" width="971" height="409"
+                        style="display: block; width: 971px; height: 409px;"></canvas>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    {{ template "scripts.html". }}
+
+</body>
