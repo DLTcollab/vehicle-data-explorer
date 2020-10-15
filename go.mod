@@ -1,4 +1,4 @@
-module biilabs.com/mam-data-explorer
+module github.com/DLTcollab/vehicle-data-explorer
 
 go 1.15
 

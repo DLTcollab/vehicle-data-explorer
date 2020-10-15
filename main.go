@@ -1,6 +1,6 @@
 package main
 
-import controller "biilabs.com/mam-data-explorer/controllers"
+import controller "github.com/DLTcollab/vehicle-data-explorer/controllers"
 
 func main() {
 	r := controller.SetupRouter()

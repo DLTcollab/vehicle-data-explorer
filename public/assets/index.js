@@ -1,4 +1,4 @@
-// hide the OBDII dashboard when loading at first time
+// hide the dashboard when loading at first time
 document.getElementById("nav-item-dashboard").style.visibility = "hidden"
 
 $('.mam_sub_form').on('click', function () {

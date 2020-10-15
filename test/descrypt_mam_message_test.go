@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"testing"
 
-	controller "biilabs.com/mam-data-explorer/controllers"
-	"biilabs.com/mam-data-explorer/models/endpoint_CBCDecrypter"
-	"biilabs.com/mam-data-explorer/models/endpoint_deserializer"
+	controller "github.com/DLTcollab/vehicle-data-explorer/controllers"
+	"github.com/DLTcollab/vehicle-data-explorer/models/endpoint_CBCDecrypter"
+	"github.com/DLTcollab/vehicle-data-explorer/models/endpoint_deserializer"
 	"github.com/stretchr/testify/assert"
 )
 

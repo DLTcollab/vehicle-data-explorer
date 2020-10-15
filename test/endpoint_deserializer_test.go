@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 
-	"biilabs.com/mam-data-explorer/models/endpoint_deserializer"
+	"github.com/DLTcollab/vehicle-data-explorer/models/endpoint_deserializer"
 	"github.com/stretchr/testify/assert"
 )
 

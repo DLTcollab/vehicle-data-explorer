@@ -1,11 +1,11 @@
-# OBDII MAM Data explorer
+# Vehicle MAM Data explorer
 
 ## Prerequisites
 
 ### Adapter
 - Go >= 1.15
 
-## Start The OBDII MAM Data Explorer
+## Start The Vehicle MAM Data Explorer
 ```
 $ go run main.go
 ```
