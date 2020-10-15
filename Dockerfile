@@ -1,6 +1,6 @@
 FROM golang:1.15.2
-WORKDIR /mam-data-explorer
-ADD . /mam-data-explorer
-RUN cd /mam-data-explorer && go build
+WORKDIR /vehicle-data-explorer
+ADD . /vehicle-data-explorer
+RUN cd /vehicle-data-explorer && go build -o app
 EXPOSE 8080
-ENTRYPOINT ./mam-data-explorer
+ENTRYPOINT ./app
