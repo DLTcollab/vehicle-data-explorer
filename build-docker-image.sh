@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker build -t mam-data-explorer . --no-cache
+docker build -t vehicle-data-explorer . --no-cache

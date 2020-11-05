@@ -9,9 +9,9 @@ import (
 	"log"
 	"net/http"
 
-	"biilabs.com/mam-data-explorer/models/endpoint_CBCDecrypter"
-	"biilabs.com/mam-data-explorer/models/endpoint_deserializer"
-	"biilabs.com/mam-data-explorer/models/obd"
+	"github.com/DLTcollab/vehicle-data-explorer/models/endpoint_CBCDecrypter"
+	"github.com/DLTcollab/vehicle-data-explorer/models/endpoint_deserializer"
+	"github.com/DLTcollab/vehicle-data-explorer/models/obd"
 	"github.com/gin-gonic/gin"
 )
 
