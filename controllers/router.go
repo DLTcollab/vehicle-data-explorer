@@ -26,6 +26,12 @@ func ShowRegisterDevice(c *gin.Context) {
 	})
 }
 
+func ShowQueryDeviceLog(c *gin.Context) {
+	c.HTML(http.StatusOK, "show_query_device_log.html", gin.H{
+		"status": "success",
+	})
+}
+
 type DefaultKVDatabase struct {
 	kvstore.KVStore
 }
@@ -52,6 +58,7 @@ func SetupRouter() *gin.Engine {
 	r.GET("/", showIndex)
 	r.GET("/dashboard", show_dash_board)
 	r.GET("/register_device", ShowRegisterDevice)
+	r.GET("/query_device_log", ShowQueryDeviceLog)
 
 	api := r.Group("/api")
 	{
@@ -59,11 +66,13 @@ func SetupRouter() *gin.Engine {
 		api.GET("/dashboard_data", Get_dashboard_realtime_data)
 		api.POST("/register_device", Register_device)
 		api.POST("/grant_access_token", GrantAccessToken)
+		api.GET("/log/query", QueryDeviceLog)
 	}
 
 	authorized := r.Group("/api")
 	authorized.Use(AuthRequired)
 	{
+		authorized.POST("/log/insert", InsertDeviceLog)
 	}
 	return r
 }
