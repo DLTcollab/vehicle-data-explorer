@@ -14,6 +14,10 @@ $('.mam_sub_form').on('click', function () {
         data
     }).then(res => {
         console.log(res.data)
+        if(res.data['status'] != 'success') {
+            $('#mam_payload').append('<p>' + res.data['status'] + '</p>');
+            return
+        }
 
         for (var i = 0; i < res.data['data'].length; i++) {
             $('#mam_payload').append('<p>massage[' + i + "]" + "=" + res.data['data'][i] + '</p>');

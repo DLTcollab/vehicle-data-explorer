@@ -8,10 +8,14 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
+	"github.com/DLTcollab/vehicle-data-explorer/models/device"
 	"github.com/DLTcollab/vehicle-data-explorer/models/endpoint_CBCDecrypter"
 	"github.com/DLTcollab/vehicle-data-explorer/models/endpoint_deserializer"
+	"github.com/DLTcollab/vehicle-data-explorer/models/jwt"
 	"github.com/DLTcollab/vehicle-data-explorer/models/obd"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -156,3 +160,102 @@ func Descrypt_mam_response(mam_message string, private_key string) Endpoint_obd2
 	log.Println("Descrypt mam response successfully")
 	return endpoint_data
 }
+
+func Register_device(c *gin.Context) {
+	var regDevice device.Device
+	if err := c.BindJSON(&regDevice); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "failed",
+			"message": "Failed to parse json",
+		})
+		return
+	}
+
+	// concate with sha256
+	hexStr := device.GetDeviceHash(regDevice)
+	db := c.Keys["defaultKVDatabase"].(*DefaultKVDatabase)
+
+	exists, _ := db.Has(hexStr)
+
+	if exists {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "failed",
+			"message": "Device has been registered",
+		})
+		return
+	}
+
+	// Set device
+	JSONDevice := device.EncodeDevice(regDevice)
+	db.Set(hexStr, JSONDevice)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Success to register new device",
+	})
+}
+
+func GrantAccessToken(c *gin.Context) {
+	type Hash struct {
+		Hash string `json:"hash"`
+	}
+
+	var hash Hash
+	if err := c.BindJSON(&hash); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "failed",
+			"message": "Failed to parse json",
+		})
+		return
+	}
+
+	db := c.Keys["defaultKVDatabase"].(*DefaultKVDatabase)
+	exists, err := db.Has(hash.Hash)
+	if !exists {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "failed",
+			"message": "Not a valid device",
+		})
+		return
+	}
+
+	token, err := jwt.CreateJwtToken(hash.Hash)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Success to grant access token",
+		"token":   token,
+	})
+}
+
+func AuthRequired(c *gin.Context) {
+	auth := c.GetHeader("Authorization")
+	tokenString := strings.Split(auth, "Bearer ")[1]
+
+	token, err := jwt.VerifyJwtToken(tokenString)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "failed",
+			"message": "Not a valid token",
+		})
+		c.Abort()
+		return
+	}
+
+	if claims, ok := token.Claims.(*jwt.Claims); ok && token.Valid {
+		c.Set("deviceHash", claims.Hash)
+		c.Next()
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "failed",
+		"message": "Not a valid token",
+	})
+	c.Abort()
+}
+
