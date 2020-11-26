@@ -1,0 +1,18 @@
+<div class="app">
+    <div class="container">
+        <H1>Query Log from device ID</H1>
+        <div class="form-group">
+            <form id="form" class="">
+                <div class="form-group row">
+                    <label for="deviceID" class="col-sm-2 col-form-label">Device ID:</label>
+                    <input type="text" id="deviceID" name="deviceID" class="form-control">
+                </div>
+                <button type="button" class="btn_log_query btn btn-primary" id="submit">Submit
+                </button>
+            </form>
+        </div>
+        <div id="message"></div>
+        <div id="logs"></div>
+    </div>
+</div>
+{{ template "scripts.html". }}

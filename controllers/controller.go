@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/DLTcollab/vehicle-data-explorer/models/device"
+	"github.com/DLTcollab/vehicle-data-explorer/models/elasticsearch"
 	"github.com/DLTcollab/vehicle-data-explorer/models/endpoint_CBCDecrypter"
 	"github.com/DLTcollab/vehicle-data-explorer/models/endpoint_deserializer"
 	"github.com/DLTcollab/vehicle-data-explorer/models/jwt"
@@ -259,3 +260,83 @@ func AuthRequired(c *gin.Context) {
 	c.Abort()
 }
 
+func InsertDeviceLog(c *gin.Context) {
+	deviceHash := c.MustGet("deviceHash").(string)
+
+	type JSONReq struct {
+		Log string `json:"log"`
+	}
+
+	var req JSONReq
+
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "failed",
+			"message": "Failed to parse json",
+		})
+		return
+	}
+
+	if deviceHash == "" {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "failed",
+			"message": "Device not found",
+		})
+		return
+	}
+
+	db := c.Keys["defaultKVDatabase"].(*DefaultKVDatabase)
+	devStr, err := db.Get(deviceHash)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "failed",
+			"message": "Not a valid token",
+		})
+		return
+	}
+
+	dev, err := device.DecodeDevice(devStr)
+
+	if err != nil {
+		log.Print(err)
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "failed",
+			"message": "Device not found",
+		})
+		return
+	}
+
+	status := elasticsearch.InsertDeviceLog(dev.IMEI, req.Log)
+
+	if status {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "success",
+			"message": "Success to insert device log",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "failed",
+		"message": "Failed to to Insert device log",
+	})
+}
+
+func QueryDeviceLog(c *gin.Context) {
+
+	deviceID := c.Query("deviceID")
+	logs := elasticsearch.QueryDeviceLog(deviceID)
+	if logs == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "failed",
+			"message": "No log found",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "success to query device logs",
+		"log":     logs,
+	})
+}
