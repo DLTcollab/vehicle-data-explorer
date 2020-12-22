@@ -1,6 +1,7 @@
 package test
 
 import (
+	"encoding/hex"
 	"testing"
 
 	"github.com/DLTcollab/vehicle-data-explorer/models/endpoint_deserializer"
@@ -37,4 +38,20 @@ func Test_endpoint_deserializer(t *testing.T) {
 	assert.Equal(t, []byte(endpoint_serial.Hmac), test_hmac)
 	assert.Equal(t, endpoint_serial.Ciphertext_len, payload_len)
 	assert.Equal(t, []byte(endpoint_serial.Ciphertext), test_payload)
+}
+
+func Test_Endpoint_Msg_flatbuffer_deserialize(t *testing.T) {
+	testMAMMessage := "EAAAAAAACgAQAAwACAAEAAoAAAAMAAAAvAAAAMwAAACwAAAAXu3axt+gxoFbKbYrSIRuP0Sv7IOgKgycT0WcUIJlUrMDOLE/GGDfhOdnmk8MVUrFEKxnGxPv9ZEq3u7ndbBNyC/xkTT2obqLRJRa957Kio1HVCqo16gibne7y+nDDeAvPW4BehAPam/6/YauoNMjp6xT+77sCnpLN6kd829tePKwNqk3mYtQPvULYgEQ+3tFh1LH9b7Zw6BR7m73wG2bEdQluWzD/31wpX/nyGf/RSUQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAC5olhadUJd4z4Vh85AN5ktj/VCL+fH/Itd0xA0ksEl9w=="
+	testHmac, _ := hex.DecodeString("b9a2585a75425de33e1587ce4037992d8ff5422fe7c7fc8b5dd3103492c125f7")
+	testIv, _ := hex.DecodeString("00000000000000000000000000000000")
+	testCiphertext, _ := hex.DecodeString("5eeddac6dfa0c6815b29b62b48846e3f44afec83a02a0c9c4f459c50826552b30338b13f1860df84e7679a4f0c554ac510ac671b13eff5912adeeee775b04dc82ff19134f6a1ba8b44945af79eca8a8d47542aa8d7a8226e77bbcbe9c30de02f3d6e017a100f6a6ffafd86aea0d323a7ac53fbbeec0a7a4b37a91df36f6d78f2b036a937998b503ef50b620110fb7b458752c7f5bed9c3a051ee6ef7c06d9b11d425b96cc3ff7d70a57fe7c867ff4525")
+
+	endpointSerial := endpoint_deserializer.Endpoint_Msg_flatbuffer_deserialize(testMAMMessage)
+	ciphertext := endpointSerial.DataBytes()
+	hmac := endpointSerial.HmacBytes()
+	iv := endpointSerial.IvBytes()
+
+	assert.Equal(t, hmac, testHmac)
+	assert.Equal(t, iv, testIv)
+	assert.Equal(t, ciphertext, testCiphertext)
 }

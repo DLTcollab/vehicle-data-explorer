@@ -1,6 +1,11 @@
 package endpoint_deserializer
 
-import "strconv"
+import (
+	"encoding/base64"
+	"strconv"
+
+	"github.com/DLTcollab/vehicle-data-explorer/endpoint"
+)
 
 type Endpoint_serial struct {
 	IV             string
@@ -18,4 +23,12 @@ func Endpoint_deserializer(serialize_msg string) Endpoint_serial {
 	endpoint_serial.Ciphertext_len, _ = strconv.Atoi(serialize_msg[68:78])
 	endpoint_serial.Ciphertext = serialize_msg[78:]
 	return endpoint_serial
+}
+
+func Endpoint_Msg_flatbuffer_deserialize(serialize_msg string) *endpoint.Msg {
+	// Decode base64 string
+	decoded, _ := base64.StdEncoding.DecodeString(serialize_msg)
+	msg := endpoint.GetRootAsMsg(decoded, 0)
+
+	return msg
 }

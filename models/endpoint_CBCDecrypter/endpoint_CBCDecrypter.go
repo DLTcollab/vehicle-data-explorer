@@ -14,7 +14,7 @@ func Unpadding(src []byte) []byte {
 	return src[:n-paddingNum]
 }
 
-func Endpoint_CBCDecrypter(ciphertext_str string, key string, iv_str string, timestamp uint64) string {
+func Endpoint_CBCDecrypter(ciphertext_str string, key string, iv_str string) string {
 
 	var ciphertext = []byte(ciphertext_str)
 

@@ -19,7 +19,7 @@ func Test_descrypt_endpoint_message(t *testing.T) {
 
 	endpoint_serial := endpoint_deserializer.Endpoint_deserializer(mam_message)
 	ciphertext, _ := hex.DecodeString(endpoint_serial.Ciphertext)
-	plaintext := endpoint_CBCDecrypter.Endpoint_CBCDecrypter(string(ciphertext), private_key, endpoint_serial.IV, endpoint_serial.Timestamp)
+	plaintext := endpoint_CBCDecrypter.Endpoint_CBCDecrypter(string(ciphertext), private_key, endpoint_serial.IV)
 
 	var endpoint_data, origin controller.Endpoint_obd2_data
 	err := json.Unmarshal([]byte(plaintext), &endpoint_data)

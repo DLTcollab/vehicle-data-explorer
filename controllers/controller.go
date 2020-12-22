@@ -2,20 +2,19 @@ package controller
 
 import (
 	"bytes"
-	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
 
+	"github.com/DLTcollab/vehicle-data-explorer/OBD"
 	"github.com/DLTcollab/vehicle-data-explorer/models/device"
 	"github.com/DLTcollab/vehicle-data-explorer/models/elasticsearch"
 	"github.com/DLTcollab/vehicle-data-explorer/models/endpoint_CBCDecrypter"
 	"github.com/DLTcollab/vehicle-data-explorer/models/endpoint_deserializer"
 	"github.com/DLTcollab/vehicle-data-explorer/models/jwt"
-	"github.com/DLTcollab/vehicle-data-explorer/models/obd"
+	"github.com/google/brotli/go/cbrotli"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,7 +33,7 @@ type MAM_response struct {
 type Endpoint_obd2_data struct {
 	Timestamp int64         `json:"timestamp"`
 	Device_id string        `json"device_id"`
-	Data      obd.ODB2_data `json:"data"`
+	Data      OBD.OBD2_json `json:"data"`
 }
 
 type MAM_post_data struct {
@@ -135,8 +134,40 @@ func Get_dashboard_realtime_data(c *gin.Context) {
 
 	for i := 0; i < len(mam_response.Payload); i++ {
 		payload := mam_response.Payload[i]
-		endpoint_data := Descrypt_mam_response(payload, private_key)
-		data = append(data, endpoint_data)
+		obd2Meta := Descrypt_mam_response(payload, private_key)
+		obd2Data := new(OBD.OBD2_data)
+		obd2Meta.Data(obd2Data)
+
+		endpointData := Endpoint_obd2_data{
+			Timestamp: obd2Meta.Timestamp(),
+			Device_id: string(obd2Meta.DeviceID()),
+			Data: OBD.OBD2_json{
+				Vin:                                 string(obd2Data.Vin()),
+				Engine_load:                         OBD.GetCalculatedEngineLoad(obd2Data.EngineLoad()),
+				Engine_coolant_temperature:          OBD.GetEngineCoolantTemperature(obd2Data.EngineCoolantTemperature()),
+				Fuel_pressure:                       OBD.GetFuelPressure(obd2Data.FuelPressure()),
+				Engine_speed:                        OBD.GetEngineSpeed(obd2Data.EngineSpeed()),
+				Vehicle_speed:                       OBD.GetVehicleSpeed(obd2Data.VehicleSpeed()),
+				Intake_air_temperature:              OBD.GetIntakeAirTemperature(obd2Data.IntakeAirTemperature()),
+				Mass_air_flow:                       OBD.GetMassAirFlow(obd2Data.MassAirFlow()),
+				Fuel_tank_level_input:               OBD.GetFuelTankLevelInput(obd2Data.FuelTankLevelInput()),
+				Absolute_barometric_pressure:        OBD.GetAbsoluteBarometricPressure(obd2Data.AbsoluteBarometricPressure()),
+				Control_module_voltage:              OBD.GetControlModuleVoltage(obd2Data.ControlModuleVoltage()),
+				Throttle_position:                   OBD.GetThrottlePosition(obd2Data.ThrottlePosition()),
+				Ambient_air_temperature:             OBD.GetAmbientAirTemperature(obd2Data.AmbientAirTemperature()),
+				Relative_accelerator_pedal_position: OBD.GetRelativeAcceleratorPedalPosition(obd2Data.RelativeAcceleratorPedalPosition()),
+				Engine_oil_temperature:              OBD.GetEngineOilTemperature(obd2Data.EngineOilTemperature()),
+				Engine_fuel_rate:                    OBD.GetEngineFuelRate(obd2Data.EngineFuelRate()),
+				Service_distance:                    int(obd2Data.ServiceDistance()),
+				Anti_lock_barking_active:            int(obd2Data.AntiLockBarkingActive()),
+				Steering_wheel_angle:                int(obd2Data.SteeringWheelAngle()),
+				Position_of_doors:                   int(obd2Data.PositionOfDoors()),
+				Right_left_turn_signal_light:        int(obd2Data.RightLeftTurnSignalLight()),
+				Alternate_beam_head_light:           int(obd2Data.AlternateBeamHeadLight()),
+				High_beam_head_light:                int(obd2Data.HighBeamHeadLight()),
+			},
+		}
+		data = append(data, endpointData)
 	}
 
 	// response to browser
@@ -146,20 +177,20 @@ func Get_dashboard_realtime_data(c *gin.Context) {
 	})
 }
 
-func Descrypt_mam_response(mam_message string, private_key string) Endpoint_obd2_data {
+func Descrypt_mam_response(mam_message string, private_key string) *OBD.OBD2Meta {
 
-	endpoint_serial := endpoint_deserializer.Endpoint_deserializer(mam_message)
-	ciphertext, _ := hex.DecodeString(endpoint_serial.Ciphertext)
-	plaintext := endpoint_CBCDecrypter.Endpoint_CBCDecrypter(string(ciphertext), private_key, endpoint_serial.IV, endpoint_serial.Timestamp)
+	endpointSerial := endpoint_deserializer.Endpoint_Msg_flatbuffer_deserialize(mam_message)
+	ciphertext := endpointSerial.DataBytes()
+	// hmac := endpointSerial.HmacBytes()
+	iv := endpointSerial.IvBytes()
 
-	var endpoint_data Endpoint_obd2_data
-	err := json.Unmarshal([]byte(plaintext), &endpoint_data)
-	if err != nil {
-		fmt.Println("error:", err)
-	}
+	compressData := endpoint_CBCDecrypter.Endpoint_CBCDecrypter(string(ciphertext), private_key, string(iv))
 
+	obd2MetaFlatbuffer, _ := cbrotli.Decode([]byte(compressData))
+
+	obd2Meta := OBD.GetRootAsOBD2Meta(obd2MetaFlatbuffer, 0)
 	log.Println("Descrypt mam response successfully")
-	return endpoint_data
+	return obd2Meta
 }
 
 func Register_device(c *gin.Context) {
